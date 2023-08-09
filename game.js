@@ -144,6 +144,108 @@ grid[1][0] = 33;
 
 
 
+//make initial position of cursor
+let cursor = {
+  x: 0,
+  y: 0
+};
+let tile = 0;
+
+//change grid if there's cursor
+function pointGrid() {
+  grid[10][10] = grid[cursor.x][cursor.y];
+  grid[cursor.x][cursor.y] = 0;
+}
+//restore grid
+function restoreGrid() {
+  grid[cursor.x][cursor.y] = grid[10][10];
+  grid[10][10] = 0;
+}
+//change grid after selecting tile
+function changeTile(tile) {
+  grid[11][11] = tile;
+}
+
+//move cursor
+let opt = false;
+function moveCursor(x, y) {
+  if (cursor.x + x >= 0 && cursor.x + x < GRID_SIZE && cursor.y + y >= 0 && cursor.y + y < GRID_SIZE && opt == false) {
+    
+    cursor.x += x;
+    cursor.y += y;
+    pointGrid();
+  }
+}
+function mousePressed() {
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+    let x = floor((mouseY - y_start) / TILE_HEIGHT - (mouseX - x_start) / TILE_WIDTH);
+    let y = floor((mouseX - x_start) / TILE_WIDTH + (mouseY - y_start) / TILE_HEIGHT) -1;
+    if (x >= 0 && x < GRID_SIZE-2 && y >= 0 && y < GRID_SIZE-2) {
+      moveCursor(x - cursor.x, y - cursor.y);
+    }
+  }
+}
+function switchOpt() {
+  if (opt == false) {
+    opt = true;
+  } else {
+    opt = false;
+  }
+}
+
+//keyboard input
+first = true;
+function keyPressed() {
+  if (keyCode === UP_ARROW && opt == false && first == true) {
+    moveCursor(-1, 0);
+    first = false;
+  } else if (keyCode === DOWN_ARROW && opt == false && first == true) {
+    moveCursor(1, 0);
+    first = false;
+  } else if (keyCode === LEFT_ARROW && opt == false && first == true) {
+    moveCursor(0, -1);
+    first = false;
+  } else if (keyCode === RIGHT_ARROW && opt == false && first == true) {
+    moveCursor(0, 1);
+    first = false;
+  } else if (keyCode === UP_ARROW && opt == false && first == false) {
+    restoreGrid();
+    moveCursor(-1, 0);
+  } else if (keyCode === DOWN_ARROW && opt == false && first == false) {
+    restoreGrid();
+    moveCursor(1, 0);
+  } else if (keyCode === LEFT_ARROW && opt == false && first == false) {
+    restoreGrid();
+    moveCursor(0, -1);
+  } else if (keyCode === RIGHT_ARROW && opt == false && first == false) {
+    restoreGrid();
+    moveCursor(0, 1);
+  } //space
+  else if (keyCode === 32 && opt == false) {
+    first = true;
+    switchOpt();
+    grid[11][11] = grid[10][10];
+  }
+  else if (keyCode === UP_ARROW && opt == true) {
+    if (tile < 38) {
+      tile++;
+    } else {
+      tile = 0;
+    }
+    changeTile(tile);
+  } else if (keyCode === DOWN_ARROW && opt == true) {
+    if (tile > 0) {
+      tile--;
+    } else {
+      tile = 38;
+    }
+    changeTile(tile);
+  } else if (keyCode === 32 && opt == true) {
+    switchOpt();
+    grid[cursor.x][cursor.y] = grid[11][11];
+  }
+}
+
 let tile_images = [];
 
 let x_start = 0;
@@ -176,87 +278,4 @@ function setup() {
 function draw() {
   background("black");
   draw_grid();
-}
-
-//make initial position of cursor
-let cursor = {
-  x: 0,
-  y: 0
-};
-
-//change grid if there's cursor
-function pointGrid() {
-  grid[10][10] = grid[cursor.x][cursor.y];
-  grid[cursor.x][cursor.y] = 0;
-}
-//restore grid
-function restoreGrid() {
-  grid[cursor.x][cursor.y] = grid[10][10];
-  grid[10][10] = 0;
-}
-//change grid after selecting tile
-function selectTile(tile) {
-  grid[cursor.x][cursor.y] += tile;
-}
-
-//move cursor
-let opt = false;
-function moveCursor(x, y) {
-  if (cursor.x + x >= 0 && cursor.x + x < GRID_SIZE && cursor.y + y >= 0 && cursor.y + y < GRID_SIZE && opt == false) {
-    restoreGrid();
-    cursor.x += x;
-    cursor.y += y;
-    pointGrid();
-  }
-}
-function mousePressed() {
-  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-    let x = floor((mouseY - y_start) / TILE_HEIGHT - (mouseX - x_start) / TILE_WIDTH);
-    let y = floor((mouseX - x_start) / TILE_WIDTH + (mouseY - y_start) / TILE_HEIGHT) -1;
-    if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-      moveCursor(x - cursor.x, y - cursor.y);
-    }
-  }
-}
-function switchOpt() {
-  if (opt == false) {
-    opt = true;
-  } else {
-    opt = false;
-  }
-}
-
-//keyboard input
-if (opt == false) {
-  function keyPressed() {
-    if (keyCode === UP_ARROW) {
-      moveCursor(-1, 0);
-    } else if (keyCode === DOWN_ARROW) {
-      moveCursor(1, 0);
-    } else if (keyCode === LEFT_ARROW) {
-      moveCursor(0, -1);
-    } else if (keyCode === RIGHT_ARROW) {
-      moveCursor(0, 1);
-    } //space
-    else if (keyCode === 32) {
-      switchOpt();
-      grid[11][11] = grid[10][10];
-    }
-  }
-} else {
-  function keyPressed() {
-    if (keyCode === UP_ARROW) {
-      selectTile(1);
-    } else if (keyCode === DOWN_ARROW) {
-      selectTile(-1);
-    } else if (keyCode === LEFT_ARROW) {
-      moveCursor(-1);
-    } else if (keyCode === RIGHT_ARROW) {
-      moveCursor(1);
-    } //space
-    else if (keyCode === 32) {
-      switchOpt();
-      grid[10][10] = grid[11][11];
-    }
-  }
 }
