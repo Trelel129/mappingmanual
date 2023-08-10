@@ -1,7 +1,14 @@
+// import map from './map.json';
+
 const GRID_SIZE = 12;
+// const GRID2_SIZE = 3;
+// const GRID3_SIZE = 12;
 const TILE_WIDTH = 100;
 const TILE_HEIGHT = 50;
-const MAX_HEIGHT = 80;
+const MAX_HEIGHT = 100;
+
+let url = window.location.href;
+let url2 = "map.json";
 
 let grid = [
   [14, 23, 23, 23, 23, 35 , 23, 23, 23, 13, 0, 0],
@@ -19,7 +26,39 @@ let grid = [
 ];
 
 
+// let grid2 = [
+//   [0, 0, 11],
+//   [0, 10, 0],
+//   [1, 0, 0]
+// ];
 
+//grid 3 all 0s
+// let grid3 = [
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+// ];
+
+cat = [0, 1, 10, 11, 15, 16, 20, 24, 37]; // category tiles
+
+// for (x = 0; x < GRID_SIZE; x++) {
+//   for (y = 0; y < GRID_SIZE; y++) {
+//     for (i = 0; i < cat.length; i++) {
+//       if (grid[x][y] <= cat[i]) {
+//         grid3[x][y] = cat[i];
+//       }
+//     }
+//   }
+// }
 // global road tiles = 33
 // road junctions, road straight, road turn
 // road = [29, 30, 31, 32, 33, 34, 35, 36];
@@ -140,7 +179,7 @@ for(x = 0; x < GRID_SIZE-1; x++) { // ↳ roads
 }
 
 
-grid[1][0] = 33;
+// grid[1][0] = 33;
 
 
 
@@ -154,7 +193,9 @@ let tile = 0;
 //change grid if there's cursor
 function pointGrid() {
   grid[10][10] = grid[cursor.x][cursor.y];
+  
   grid[cursor.x][cursor.y] = 0;
+  // categorizer();
 }
 //restore grid
 function restoreGrid() {
@@ -176,6 +217,15 @@ function moveCursor(x, y) {
     pointGrid();
   }
 }
+
+// function categorizer(){
+//   curx = cursor.x;
+//   cury = cursor.y;
+//   grid2[1][1] = grid3[curx][cury];
+//   grid2[0][3] = grid[0][3];
+//   grid2[3][0] = grid[3][0];
+// }
+
 function mousePressed() {
   if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
     let x = floor((mouseY - y_start) / TILE_HEIGHT - (mouseX - x_start) / TILE_WIDTH);
@@ -195,7 +245,7 @@ function switchOpt() {
 
 //keyboard input
 first = true;
-function keyPressed() {
+function keyReleased() {
   if (keyCode === UP_ARROW && opt == false && first == true) {
     moveCursor(-1, 0);
     first = false;
@@ -240,9 +290,27 @@ function keyPressed() {
       tile = 38;
     }
     changeTile(tile);
+  } else if (keyCode === LEFT_ARROW && opt == true) {
+    if (tile > 0) {
+      tile--;
+    } else {
+      tile = 38;
+    }
+    changeTile(tile);
+  } else if (keyCode === RIGHT_ARROW && opt == true) {
+    if (tile < 38) {
+      tile++;
+    } else {
+      tile = 0;
+    }
+    changeTile(tile);
   } else if (keyCode === 32 && opt == true) {
     switchOpt();
     grid[cursor.x][cursor.y] = grid[11][11];
+  } 
+  //download map to file using z key
+  else if (keyCode === 90) {
+    saveJSON(grid, 'map.json', true);
   }
 }
 
@@ -250,6 +318,8 @@ let tile_images = [];
 
 let x_start = 0;
 let y_start = 0;
+let x_start2 = 0;
+let y_start2 = 0;
 
 function draw_grid() {
   x_start = width/2 - TILE_WIDTH/2;
@@ -261,9 +331,37 @@ function draw_grid() {
   }
 }
 
+// function draw_grid2() {
+//   x_start2 = width/2 - TILE_WIDTH/2;
+//   y_start2 = 650;
+//   for (let i = 0; i < GRID2_SIZE; i++) {
+//     for (let j = 0; j < GRID2_SIZE; j++) {
+//       draw_tile2((tile_images[grid2[j][i]]), i, j);
+//     }
+//   }
+// }
+
+//undraw grid2
+// function undraw_grid2() {
+//   x_start2 = width/2 - TILE_WIDTH/2;
+//   y_start2 = 650;
+//   for (let i = 0; i < GRID2_SIZE; i++) {
+//     for (let j = 0; j < GRID2_SIZE; j++) {
+//       draw_tile2((tile_images[0]), i, j);
+//     }
+//   }
+// }
+
 function draw_tile(img, x, y) {
   let x_screen = x_start + (x - y) * TILE_WIDTH/2;
   let y_screen = y_start + (x + y) * TILE_HEIGHT/2;
+  let z_offset = MAX_HEIGHT - img.height;
+  image(img, x_screen, y_screen + z_offset);
+}
+
+function draw_tile2(img, x, y) {
+  let x_screen = x_start2 + (x - y) * TILE_WIDTH/2;
+  let y_screen = y_start2 + (x + y) * TILE_HEIGHT/2;
   let z_offset = MAX_HEIGHT - img.height;
   image(img, x_screen, y_screen + z_offset);
 }
@@ -278,4 +376,6 @@ function setup() {
 function draw() {
   background("black");
   draw_grid();
+  // draw_grid2(); 
 }
+
